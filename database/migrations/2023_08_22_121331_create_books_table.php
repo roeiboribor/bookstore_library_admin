@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('books', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
-            $table->string('author');
+            $table->string('book_name')->unique();
+            $table->string('book_author');
             $table->text('book_cover_photo_path')->nullable();
             $table->dateTime('deleted_at')->nullable();
             $table->timestamps();
