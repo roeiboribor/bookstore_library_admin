@@ -34,8 +34,9 @@
         </div>
     </div>
 
+    {{-- MODALS --}}
     <x-modal name="add-book" :show="$errors->bookCreation->isNotEmpty()" focusable>
-        <form method="POST" action="{{ route('books.store') }}" class="p-6">
+        <form method="POST" action="{{ route('books.store') }}" enctype="multipart/form-data" class="p-6">
             @csrf
             <div class="mt-6 grid grid-cols-12 gap-4">
                 <div class="col-span-12">
@@ -50,6 +51,13 @@
                     <x-text-input id="book_author" name="book_author" type="text" class="mt-1 block w-full"
                         :value="old('book_author')" placeholder="Enter Book Author..." required autofocus />
                     <x-input-error class="mt-2" :messages="$errors->bookCreation->get('book_author')" />
+                </div>
+
+                <div class="col-span-12">
+                    <x-input-label for="book_cover_photo" :value="__('Book Cover Photo')" />
+                    <x-text-input id="book_cover_photo" name="book_cover_photo" type="file"
+                        class="mt-1 block w-full shadow-none" />
+                    <x-input-error class="mt-2" :messages="$errors->bookCreation->get('book_cover_photo')" />
                 </div>
             </div>
 

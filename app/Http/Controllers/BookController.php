@@ -34,13 +34,24 @@ class BookController extends Controller
      */
     public function store(Request $request)
     {
+        $bookCoverPhotoPath = null;
+
+        // Validate the Request
         $validatedRequest = $request->validateWithBag('bookCreation', [
             'book_name' => 'required|min:2|max:255|unique:books',
             'book_author' => 'required|min:2|max:255',
-            'book_cover_photo_path' => 'nullable',
+            'book_cover_photo' => 'required|image|mimes:jpeg,png,jpg|max:4048',
         ]);
 
-        $book = \App\Models\Book::create($validatedRequest);
+        // Save Book Cover Photo
+        if ($request->hasFile('book_cover_photo')) {
+            $bookCoverPhotoPath = $request->file('book_cover_photo')->store('book_covers', 'public');
+        }
+
+        $book = \App\Models\Book::create([
+            ...collect($validatedRequest)->except('book_cover_photo'),
+            'book_cover_photo_path' => $bookCoverPhotoPath
+        ]);
 
         $book && session()->flash('success', 'Book has been added successfully!');
 
