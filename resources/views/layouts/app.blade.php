@@ -19,6 +19,7 @@
             transition: opacity 2s ease-in-out;
         }
     </style>
+    @stack('styles')
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -42,7 +43,7 @@
         </main>
     </div>
 
-    @yield('scripts')
+    @stack('scripts')
 </body>
 
 </html>

@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\DataTables\BooksDataTable;
 use Illuminate\Http\Request;
+use Yajra\DataTables\Facades\DataTables;
 
 class BookController extends Controller
 {
@@ -11,8 +13,14 @@ class BookController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request, BooksDataTable $dataTable)
     {
+        if ($request->ajax()) {
+            $data = \App\Models\Book::select(['book_name', 'author', 'book_cover_photo_path'])->get();
+
+            return DataTables::of($data)->make(true);
+        }
+
         return view('books.index');
     }
 

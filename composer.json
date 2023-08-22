@@ -2,7 +2,10 @@
     "name": "laravel/laravel",
     "type": "project",
     "description": "The Laravel Framework.",
-    "keywords": ["framework", "laravel"],
+    "keywords": [
+        "framework",
+        "laravel"
+    ],
     "license": "MIT",
     "require": {
         "php": "^8.0.2",
@@ -10,9 +13,7 @@
         "laravel/framework": "^9.19",
         "laravel/sanctum": "^3.0",
         "laravel/tinker": "^2.7",
-        "yajra/laravel-datatables": "^9.0",
-        "yajra/laravel-datatables-buttons": "^9.1",
-        "yajra/laravel-datatables-oracle": "^10.8"
+        "yajra/laravel-datatables-oracle": "~9.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",

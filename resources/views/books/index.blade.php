@@ -27,7 +27,15 @@
                         </div>
                     </div>
                     <div class="text-center">
-                        SHOW BOOK LIST TABLE HERE...
+                        <table id="books-table" class="table-auto w-full">
+                            <thead>
+                                <tr>
+                                    <th>Book Name</th>
+                                    <th>Author</th>
+                                    <th>Book Cover</th>
+                                </tr>
+                            </thead>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -73,7 +81,21 @@
         </form>
     </x-modal>
 
-    @section('scripts')
+    @push('styles')
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css" rel="stylesheet">
+    @endpush
+
+    @push('scripts')
+    <!-- DataTables JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+
+    <!-- DataTables Bootstrap 4 Integration -->
+    <script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"></script>
+
+    <!-- DataTables Responsive Integration -->
+    <script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             var flashMessage = document.getElementById('flash-message');
@@ -83,5 +105,5 @@
             }, 2000); // 2000 milliseconds (2 seconds) is the duration of the fade-out effect
         });
     </script>
-    @endsection
+    @endpush
 </x-app-layout>
