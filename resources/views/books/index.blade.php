@@ -41,7 +41,6 @@
                                 class="bg-green-500 hover:bg-green-700 focus:bg-green-700 active:bg-green-700 shadow">
                                 <i class='bx bx-plus'></i><span class="ml-2">New Book</span>
                             </x-primary-button>
-
                         </div>
                     </div>
                     <div class="text-center mt-8">
@@ -199,13 +198,17 @@
                     {
                         data: 'book_cover_photo_path',
                         name: 'book_cover_photo_path',
+                        orderable: false,
+                        searchable: false,
                         render: function(data, type, full, meta) {
-                            return '<img src="' + @js(asset('storage'))+"/"+data + '" alt="Book Cover" class="h-16">';
+                            return '<img src="' + @js(asset('storage'))+"/"+data + '" alt="Book Cover" class="h-16" loading="lazy">';
                         }
                     },
                     { 
                         data: null, 
                         name: 'action',
+                        orderable: false,
+                        searchable: false,
                         render: function(data, type, full, meta) {
                             return `<div class="flex justify-center space-x-1">
                                 <x-primary-button id="editBook-${data.id}" onClick="editBook(${data.id})" type="button" x-on:click.prevent="$dispatch('open-modal', 'edit-book')" class="!px-2 !py-1 bg-blue-500 hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-700">
