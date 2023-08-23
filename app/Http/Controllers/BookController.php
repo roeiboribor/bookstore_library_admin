@@ -7,6 +7,8 @@ use Yajra\DataTables\Facades\DataTables;
 
 class BookController extends Controller
 {
+    private $isRemovePhotoEnabled = false;
+
     /**
      * Display a listing of the resource.
      *
@@ -118,10 +120,12 @@ class BookController extends Controller
         if ($request->hasFile('book_cover_photo')) {
             $bookCoverPhotoPath = $request->file('book_cover_photo')->store('book_covers', 'public');
 
-            $currentBookCoverPhotoPath = public_path('storage/' . $book->book_cover_photo_path);
+            if ($this->isRemovePhotoEnabled == true) {
+                $currentBookCoverPhotoPath = public_path('storage/' . $book->book_cover_photo_path);
 
-            if (\File::exists($currentBookCoverPhotoPath)) {
-                \File::delete($currentBookCoverPhotoPath);
+                if (\File::exists($currentBookCoverPhotoPath)) {
+                    \File::delete($currentBookCoverPhotoPath);
+                }
             }
         }
 
