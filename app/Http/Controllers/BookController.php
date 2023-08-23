@@ -89,6 +89,7 @@ class BookController extends Controller
     public function edit($id = null)
     {
         $data = \App\Models\Book::find($id);
+
         return $data;
     }
 
@@ -101,7 +102,35 @@ class BookController extends Controller
      */
     public function update(Request $request, $id = null)
     {
-        dd($request);
+        $bookCoverPhotoPath = null;
+        $currentBookCoverPhotoPath = null;
+
+        $book = \App\Models\Book::find($id);
+
+        // Validate the Request
+        $validatedRequest = $request->validateWithBag('bookEdit', [
+            'book_name' => 'required|min:2|max:255|unique:books,book_name,' . $id,
+            'book_author' => 'required|min:2|max:255',
+            'book_cover_photo' => $request->book_cover_photo ? 'required|image|mimes:jpeg,png,jpg|max:4048' : 'nullable',
+        ]);
+
+        // Save Book Cover Photo
+        if ($request->hasFile('book_cover_photo')) {
+            $bookCoverPhotoPath = $request->file('book_cover_photo')->store('book_covers', 'public');
+
+            $currentBookCoverPhotoPath = public_path('storage/' . $book->book_cover_photo_path);
+
+            if (\File::exists($currentBookCoverPhotoPath)) {
+                \File::delete($currentBookCoverPhotoPath);
+            }
+        }
+
+        $book->update([
+            ...collect($validatedRequest)->except('book_cover_photo'),
+            'book_cover_photo_path' => $bookCoverPhotoPath ?? $book->book_cover_photo_path
+        ]);
+
+        return redirect()->back();
     }
 
     /**
@@ -110,8 +139,17 @@ class BookController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(\App\Models\Book $book)
     {
-        //
+        // Show Error Flash Message
+        !$book && session()->flash('failed', 'Book not found! 😥');
+
+        // Delete book
+        if ($book) {
+            $book->delete();
+            session()->flash('success', 'Book has been deleted successfully!');
+        }
+
+        return redirect()->back();
     }
 }

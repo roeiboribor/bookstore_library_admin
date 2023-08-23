@@ -17,6 +17,12 @@
                                 {{ session('success') }}
                             </div>
                             @endif
+                            @if(session('failed'))
+                            <div id="flash-message"
+                                class="px-4 py-2 rounded-md font-medium text-sm bg-red-200 text-red-600 dark:text-red-400">
+                                {{ session('failed') }}
+                            </div>
+                            @endif
                         </div>
                         <div>
                             <x-primary-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'add-book')"
@@ -44,7 +50,7 @@
         </div>
     </div>
 
-    {{-- MODALS --}}
+    {{-- START MODALS --}}
     <x-modal name="add-book" :show="$errors->bookCreation->isNotEmpty()" focusable>
         <form method="POST" action="{{ route('books.store') }}" enctype="multipart/form-data" class="p-6">
             @csrf
@@ -83,41 +89,42 @@
         </form>
     </x-modal>
 
-    <x-modal name="edit-book" focusable>
-        <form method="POST" action="#" enctype="multipart/form-data" class="p-6">
+    <x-modal name="edit-book" :show="$errors->bookEdit->isNotEmpty()" focusable>
+        <form id="book_form_edit" method="POST" enctype="multipart/form-data" class="p-6">
             @csrf
             @method('PUT')
             <div class="mt-6 grid grid-cols-12 gap-4">
+                <input type="hidden" id="book_id_edit">
                 <div class="col-span-12">
                     <x-input-label for="book_name_edit" :value="__('Book Name')" />
                     <x-text-input id="book_name_edit" name="book_name" type="text" class="mt-1 block w-full"
                         :value="old('book_name')" placeholder="Enter Book Name..." required autofocus />
-                    <x-input-error class="mt-2" :messages="$errors->bookCreation->get('book_name')" />
+                    <x-input-error class="mt-2" :messages="$errors->bookEdit->get('book_name')" />
                 </div>
 
                 <div class="col-span-12">
                     <x-input-label for="book_author_edit" :value="__('Book Author')" />
                     <x-text-input id="book_author_edit" name="book_author" type="text" class="mt-1 block w-full"
                         :value="old('book_author')" placeholder="Enter Book Author..." required autofocus />
-                    <x-input-error class="mt-2" :messages="$errors->bookCreation->get('book_author')" />
+                    <x-input-error class="mt-2" :messages="$errors->bookEdit->get('book_author')" />
                 </div>
 
                 <div class="col-span-12">
                     <x-input-label for="current_book_cover_photo_edit" :value="__('Current Book Cover')" />
-                    <img id="current_book_cover_photo_edit" class="shadow mt-1 w-full lg:w-1/2"
-                        src="{{ asset('storage/book_covers/choose-img.jpg') }}" alt="Book Cover Name">
+                    <img id="current_book_cover_photo_edit" class="shadow mt-1 w-full lg:w-4/12 mx-auto"
+                        src="{{ asset('img/choose-img.jpg') }}" alt="Book Cover Name">
                 </div>
 
                 <div class="col-span-12">
                     <x-input-label for="book_cover_photo_edit" :value="__('Book Cover Photo')" />
                     <x-text-input id="book_cover_photo_edit" name="book_cover_photo" type="file"
                         class="mt-1 block w-full !shadow-none" />
-                    <x-input-error class="mt-2" :messages="$errors->bookCreation->get('book_cover_photo')" />
+                    <x-input-error class="mt-2" :messages="$errors->bookEdit->get('book_cover_photo')" />
                 </div>
             </div>
 
             <div class="mt-6 flex justify-end">
-                <x-secondary-button x-on:click="$dispatch('close')">
+                <x-secondary-button type="button" x-on:click="$dispatch('close')">
                     {{ __('Cancel') }}
                 </x-secondary-button>
 
@@ -125,9 +132,33 @@
                     {{ __('Update') }}
                 </x-primary-button>
             </div>
-            </div>
+        </form>
     </x-modal>
 
+    <x-modal name="delete-book" focusable>
+        <form id="book_form_delete" method="POST" class="p-6">
+            @csrf
+            @method('DELETE')
+            <div class="mt-6 grid grid-cols-12 gap-4">
+                <div class="col-span-12">
+                    <p class="text-center">Are you sure you want to delete this book details?</p>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end">
+                <x-secondary-button type="button" x-on:click="$dispatch('close')">
+                    {{ __('Cancel') }}
+                </x-secondary-button>
+
+                <x-danger-button class="ml-3">
+                    {{ __('Delete') }}
+                </x-danger-button>
+            </div>
+        </form>
+    </x-modal>
+    {{-- END MODALS --}}
+
+    {{-- START SCRIPTS --}}
     @push('scripts')
     <script>
         $(document).ready(function() {
@@ -153,7 +184,7 @@
                                 <x-primary-button id="editBook-${data.id}" onClick="editBook(${data.id})" type="button" x-on:click.prevent="$dispatch('open-modal', 'edit-book')" class="!px-2 !py-1 bg-blue-500 hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-700">
                                     <i class='bx bx-edit-alt text-sm'></i>
                                 </x-primary-button>
-                                <x-danger-button class="!px-2 !py-1">
+                                <x-danger-button id="deleteBook-${data.id}" onClick="deleteBook(${data.id})" type="button" x-on:click.prevent="$dispatch('open-modal', 'delete-book')" class="!px-2 !py-1">
                                     <i class='bx bx-trash text-sm'></i>
                                 </x-danger-button>
                             </div>` 
@@ -179,6 +210,14 @@
                 type: 'GET',
                 success: function ({id, book_name, book_author, book_cover_photo_path}) {
                     // Handle success response here
+                    
+                    // RESET FORM
+                    $('#book_form_edit')[0].reset();
+
+                    // ASSIGN DATA TO FORM INPUTS
+                    $("#book_form_edit").attr("action", `{{ url('books') }}/${id}`);
+
+                    $('#book_id_edit').val(id);
                     $('#book_name_edit').val(book_name);
                     $('#book_author_edit').val(book_author);
                     $('#current_book_cover_photo_edit').attr('src', `{{ asset('storage') }}/${book_cover_photo_path}`);
@@ -189,6 +228,11 @@
                 }
             });
         }
+
+        function deleteBook(id = null) {
+            $("#book_form_delete").attr("action", `{{ url('books') }}/${id}`);
+        }
     </script>
     @endpush
+    {{-- END SCRIPTS --}}
 </x-app-layout>
