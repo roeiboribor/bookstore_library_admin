@@ -31,7 +31,7 @@
                                 <i class='bx bx-plus'></i><span class="ml-2">New Book</span>
                             </x-primary-button>
                             <x-secondary-button disabled id="export_book" onClick="exportBooks()" type="button"
-                                class="bg-purple-500 hover:bg-purple-700 focus:bg-purple-700 active:bg-purple-700 text-white shadow">
+                                class="shadow">
                                 <i class='bx bx-export'></i> <span class="ml-2">Export</span>
                             </x-secondary-button>
                         </div>
@@ -116,9 +116,9 @@
                 </div>
 
                 <div class="col-span-12">
-                    <x-input-label :value="__('Current Book Cover')" />
-                    <img class="shadow mt-1 w-full lg:w-4/12 mx-auto" src="{{ asset('img/choose-img.jpg') }}"
-                        alt="Book Cover Name">
+                    <p class="block font-medium text-sm text-gray-700 dark:text-gray-300">Current Book Cover</p>
+                    <img id="current_book_cover_photo_edit" class="shadow mt-1 w-full lg:w-4/12 mx-auto"
+                        src="{{ asset('img/choose-img.jpg') }}" alt="Book Cover Name">
                 </div>
 
                 <div class="col-span-12">
@@ -260,6 +260,7 @@
                 type: 'GET',
                 success: function (data) {
                     // Handle success response here
+                    console.log(data);
                     // RESET FORM
                     $('#book_form_edit')[0].reset();
 
