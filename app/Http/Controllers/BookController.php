@@ -172,7 +172,7 @@ class BookController extends Controller
     public function import(Request $request)
     {
         $request->validate([
-            'import_book_file' => 'required|mimes:csv,txt',
+            'import_book_file' => 'required|mimes:csv,xlsx',
         ]);
 
         $file = $request->file('import_book_file');

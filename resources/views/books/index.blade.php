@@ -175,10 +175,24 @@
         </form>
     </x-modal>
 
-    <x-modal name="import-book">
-        <form id="book_form_import" method="POST" enctype="multipart/form-data" class="p-6">
+    <x-modal name="import-book" :show="$errors->importBooks->isNotEmpty()">
+        <form id="book_form_import" action="{{ route('books.import') }}" method="POST" enctype="multipart/form-data"
+            class="p-6">
             @csrf
             <div class="mt-6 grid grid-cols-12 gap-4">
+                @if ($errors->importBooks->isNotEmpty())
+                <div class="col-span-12">
+                    <ul>
+                        @foreach($errors->importBooks->all() as $item)
+                        <li>
+                            <span class="text-red-400">
+                                {{ $item }}
+                            </span>
+                        </li>
+                        @endforeach
+                    </ul>
+                </div>
+                @endif
                 <div class="col-span-12">
                     <x-input-label for="import_books" :value="__('Upload CSV File to Upload')" />
                     <x-text-input id="import_books" name="import_book_file" type="file"
