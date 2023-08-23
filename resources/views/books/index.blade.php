@@ -24,16 +24,24 @@
                             </div>
                             @endif
                         </div>
-                        <div class="flex space-x-2">
+                    </div>
+                    <div class="flex justify-between">
+                        <div>
+                            <form id="book_export" action="{{ route('books.export') }}" method="POST">
+                                @csrf
+                                <input type="hidden" id="selected_books" name="selected_books" value="">
+                            </form>
+                            <x-primary-button id="export_book" onClick="exportBooks()" class="shadow hidden">
+                                <i class='bx bx-export'></i> <span class="ml-2">Export</span>
+                            </x-primary-button>
+                        </div>
+                        <div>
                             <x-primary-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'add-book')"
                                 type="button"
                                 class="bg-green-500 hover:bg-green-700 focus:bg-green-700 active:bg-green-700 shadow">
                                 <i class='bx bx-plus'></i><span class="ml-2">New Book</span>
                             </x-primary-button>
-                            <x-secondary-button disabled id="export_book" onClick="exportBooks()" type="button"
-                                class="shadow">
-                                <i class='bx bx-export'></i> <span class="ml-2">Export</span>
-                            </x-secondary-button>
+
                         </div>
                     </div>
                     <div class="text-center mt-8">
@@ -183,7 +191,7 @@
                         orderable: false, 
                         searchable: false,
                         render: function(data, type, full, meta) {
-                            return `<x-text-input id="book_id_edit-${data.id}" class="book_checkbox" type="checkbox" :value="'${data.id}'"/>`
+                            return `<x-text-input key="book_id_edit-${data.id}" id="book_id_edit-${data.id}" class="book_checkbox" type="checkbox" :value="'${data.id}'"/>`
                         }
                     },
                     { data: 'book_name', name: 'book_name' },
@@ -232,27 +240,28 @@
                     flashMessage.style.opacity = '0';
                 }
             }, 2000); // 2000 milliseconds (2 seconds) is the duration of the fade-out effect
-
+            
             selectAllBtn.on('click', function(e) {
                 const checkBoxes = document.querySelectorAll('.book_checkbox');
-                
+
                 if(e.target.checked == true) {
                     checkBoxes.forEach(el => {
                         selectedBooks.push(el.value);
                         el.checked = true;
                     });
-                    exportBtn.attr('disabled', false);
-
+                    exportBtn.removeClass('hidden');
+                    
                 } else if (e.target.checked == false) {
                     checkBoxes.forEach(el => {
                         el.checked = false;
                     });
-                
+                    
                     selectedBooks = [];
-                    exportBtn.attr('disabled', true);
+                    exportBtn.addClass('hidden');
                 }
             });
         });
+
 
         function editBook(id = null) {
             $.ajax({
@@ -260,7 +269,6 @@
                 type: 'GET',
                 success: function (data) {
                     // Handle success response here
-                    console.log(data);
                     // RESET FORM
                     $('#book_form_edit')[0].reset();
 
@@ -284,24 +292,17 @@
         }
 
         function exportBooks() {
-            $.ajax({
-                url: `{{ route('books.export') }}`,
-                type: 'post',
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                data: {
-                    selectedBooks: selectedBooks,
-                },
-                success: function (data) {
-                    // Handle success response here
-                    console.log('success:'+data);
-                },
-                error: function (xhr, status, error) {
-                    // Handle error response here
-                    console.log('error:'+error);
-                }
-            });
+            const selectedBooksInput = $('#selected_books');
+
+            selectedBooksInput.val(selectedBooks);
+
+            $('#book_export').submit();
+        }
+
+        function getAllSelectedBooks() {
+            const checkBoxes = document.querySelectorAll('.book_checkbox');
+
+            console.log(checkBoxes);
         }
     </script>
     @endpush

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 
 class BookController extends Controller
@@ -161,17 +162,9 @@ class BookController extends Controller
 
     public function export(Request $request)
     {
-        $books = \App\Models\Book::select([
-            'id',
-            'book_name',
-            'book_author',
-            'book_cover_photo_path',
-        ])
-            ->whereIn('id', [...$request->selectedBooks])
-            ->get()
-            ->toArray();
-
-        dd($books);
-        // return response()->json(['result' => 'success', 'data' => $request->selectedBooks]);
+        return Excel::download(
+            new \App\Exports\BooksExport($request->selected_books),
+            'book-list.xlsx'
+        );
     }
 }
