@@ -191,7 +191,7 @@
                         orderable: false, 
                         searchable: false,
                         render: function(data, type, full, meta) {
-                            return `<x-text-input key="book_id_edit-${data.id}" id="book_id_edit-${data.id}" class="book_checkbox" type="checkbox" :value="'${data.id}'"/>`
+                            return `<x-text-input key="book_id_edit-${data.id}" onClick="getAllSelectedBooks()" id="book_id_edit-${data.id}" class="book_checkbox" type="checkbox" :value="'${data.id}'"/>`
                         }
                     },
                     { data: 'book_name', name: 'book_name' },
@@ -301,8 +301,15 @@
 
         function getAllSelectedBooks() {
             const checkBoxes = document.querySelectorAll('.book_checkbox');
-
-            console.log(checkBoxes);
+            
+            selectAllBtn.prop('checked',false);
+            selectedBooks = [];
+            
+            checkBoxes.forEach(checkbox => {
+                if(checkbox.checked) {
+                    selectedBooks.push(checkbox.value);
+                }
+            });
         }
     </script>
     @endpush
