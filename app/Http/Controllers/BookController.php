@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\DataTables\BooksDataTable;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -13,10 +12,14 @@ class BookController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request, BooksDataTable $dataTable)
+    public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = \App\Models\Book::select(['book_name', 'author', 'book_cover_photo_path'])->get();
+            $data = \App\Models\Book::select([
+                'id', 'book_name', 'book_author', 'book_cover_photo_path'
+            ])
+                ->orderBy('book_name', 'ASC')
+                ->get();
 
             return DataTables::of($data)->make(true);
         }
@@ -72,7 +75,7 @@ class BookController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($id = null)
     {
         //
     }
@@ -83,9 +86,10 @@ class BookController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit($id = null)
     {
-        //
+        $data = \App\Models\Book::find($id);
+        return $data;
     }
 
     /**
@@ -95,9 +99,9 @@ class BookController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $id = null)
     {
-        //
+        dd($request);
     }
 
     /**

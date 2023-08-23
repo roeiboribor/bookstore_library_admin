@@ -18,10 +18,18 @@
             opacity: 1;
             transition: opacity 2s ease-in-out;
         }
+
+        .dataTables_wrapper .dataTables_length select {
+            /* TOP RIGHT BOTTOM LEFT */
+            padding: 0.5rem 2.5rem 0.5rem 0.75rem !important;
+        }
     </style>
-    @stack('styles')
+
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css" rel="stylesheet">
 </head>
 
 <body class="font-sans antialiased">
@@ -42,6 +50,16 @@
             {{ $slot }}
         </main>
     </div>
+
+    <!-- DataTables JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+
+    <!-- DataTables Bootstrap 4 Integration -->
+    <script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"></script>
+
+    <!-- DataTables Responsive Integration -->
+    <script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
 
     @stack('scripts')
 </body>
