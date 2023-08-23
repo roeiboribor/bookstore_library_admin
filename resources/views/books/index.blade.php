@@ -35,11 +35,16 @@
                                 <i class='bx bx-export'></i> <span class="ml-2">Export</span>
                             </x-primary-button>
                         </div>
-                        <div>
+                        <div class="flex space-x-2">
                             <x-primary-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'add-book')"
                                 type="button"
                                 class="bg-green-500 hover:bg-green-700 focus:bg-green-700 active:bg-green-700 shadow">
                                 <i class='bx bx-plus'></i><span class="ml-2">New Book</span>
+                            </x-primary-button>
+                            <x-primary-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'import-book')"
+                                type="button"
+                                class="bg-purple-500 hover:bg-purple-700 focus:bg-purple-700 active:bg-purple-700 shadow">
+                                <i class='bx bx-import'></i><span class="ml-2">Import</span>
                             </x-primary-button>
                         </div>
                     </div>
@@ -166,6 +171,29 @@
                 <x-danger-button class="ml-3">
                     {{ __('Delete') }}
                 </x-danger-button>
+            </div>
+        </form>
+    </x-modal>
+
+    <x-modal name="import-book">
+        <form id="book_form_import" method="POST" enctype="multipart/form-data" class="p-6">
+            @csrf
+            <div class="mt-6 grid grid-cols-12 gap-4">
+                <div class="col-span-12">
+                    <x-input-label for="import_books" :value="__('Upload CSV File to Upload')" />
+                    <x-text-input id="import_books" name="import_book_file" type="file"
+                        class="mt-1 block w-full !shadow-none" />
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end">
+                <x-secondary-button type="button" x-on:click="$dispatch('close')">
+                    {{ __('Cancel') }}
+                </x-secondary-button>
+
+                <x-primary-button class="ml-3">
+                    {{ __('Save') }}
+                </x-primary-button>
             </div>
         </form>
     </x-modal>

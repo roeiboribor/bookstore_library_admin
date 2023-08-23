@@ -29,6 +29,7 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('books', \App\Http\Controllers\BookController::class);
     Route::post('export-books', [\App\Http\Controllers\BookController::class, 'export'])->name('books.export');
+    Route::post('import-books', [\App\Http\Controllers\BookController::class, 'import'])->name('books.import');
 });
 
 require __DIR__ . '/auth.php';

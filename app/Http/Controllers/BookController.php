@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Imports\BooksImport;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
@@ -166,5 +167,21 @@ class BookController extends Controller
             new \App\Exports\BooksExport($request->selected_books),
             'book-list.xlsx'
         );
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'import_book_file' => 'required|mimes:csv,txt',
+        ]);
+
+        $file = $request->file('import_book_file');
+
+        // Import the CSV file into the database using Laravel Excel
+        Excel::import(new BooksImport, $file);
+
+        session()->flash('success', 'CSV file has been uploaded successfully!');
+
+        return redirect()->back();
     }
 }
