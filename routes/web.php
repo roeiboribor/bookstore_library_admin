@@ -28,6 +28,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::resource('books', \App\Http\Controllers\BookController::class);
+    Route::post('export-books', [\App\Http\Controllers\BookController::class, 'export'])->name('books.export');
 });
 
 require __DIR__ . '/auth.php';

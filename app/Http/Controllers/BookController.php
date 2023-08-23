@@ -23,7 +23,9 @@ class BookController extends Controller
                 ->orderBy('book_name', 'ASC')
                 ->get();
 
-            return DataTables::of($data)->make(true);
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->make(true);
         }
 
         return view('books.index');
@@ -51,8 +53,8 @@ class BookController extends Controller
 
         // Validate the Request
         $validatedRequest = $request->validateWithBag('bookCreation', [
-            'book_name' => 'required|min:2|max:255|unique:books',
-            'book_author' => 'required|min:2|max:255',
+            'book_name' => 'required|min:1|max:255|unique:books',
+            'book_author' => 'required|min:1|max:255',
             'book_cover_photo' => 'required|image|mimes:jpeg,png,jpg|max:4048',
         ]);
 
@@ -111,8 +113,8 @@ class BookController extends Controller
 
         // Validate the Request
         $validatedRequest = $request->validateWithBag('bookEdit', [
-            'book_name' => 'required|min:2|max:255|unique:books,book_name,' . $id,
-            'book_author' => 'required|min:2|max:255',
+            'book_name' => 'required|min:1|max:255|unique:books,book_name,' . $id,
+            'book_author' => 'required|min:1|max:255',
             'book_cover_photo' => $request->book_cover_photo ? 'required|image|mimes:jpeg,png,jpg|max:4048' : 'nullable',
         ]);
 
@@ -155,5 +157,21 @@ class BookController extends Controller
         }
 
         return redirect()->back();
+    }
+
+    public function export(Request $request)
+    {
+        $books = \App\Models\Book::select([
+            'id',
+            'book_name',
+            'book_author',
+            'book_cover_photo_path',
+        ])
+            ->whereIn('id', [...$request->selectedBooks])
+            ->get()
+            ->toArray();
+
+        dd($books);
+        // return response()->json(['result' => 'success', 'data' => $request->selectedBooks]);
     }
 }

@@ -24,19 +24,25 @@
                             </div>
                             @endif
                         </div>
-                        <div>
+                        <div class="flex space-x-2">
                             <x-primary-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'add-book')"
                                 type="button"
                                 class="bg-green-500 hover:bg-green-700 focus:bg-green-700 active:bg-green-700 shadow">
                                 <i class='bx bx-plus'></i><span class="ml-2">New Book</span>
                             </x-primary-button>
+                            <x-secondary-button disabled id="export_book" onClick="exportBooks()" type="button"
+                                class="bg-purple-500 hover:bg-purple-700 focus:bg-purple-700 active:bg-purple-700 text-white shadow">
+                                <i class='bx bx-export'></i> <span class="ml-2">Export</span>
+                            </x-secondary-button>
                         </div>
                     </div>
                     <div class="text-center mt-8">
                         <table id="books-table" class="table-auto w-full">
                             <thead>
                                 <tr>
-                                    {{-- <th></th> --}}
+                                    <th>
+                                        <x-text-input type="checkbox" id="select-all" value="true" />
+                                    </th>
                                     <th>Book Name</th>
                                     <th>Author</th>
                                     <th>Book Cover</th>
@@ -110,9 +116,9 @@
                 </div>
 
                 <div class="col-span-12">
-                    <x-input-label for="current_book_cover_photo_edit" :value="__('Current Book Cover')" />
-                    <img id="current_book_cover_photo_edit" class="shadow mt-1 w-full lg:w-4/12 mx-auto"
-                        src="{{ asset('img/choose-img.jpg') }}" alt="Book Cover Name">
+                    <x-input-label :value="__('Current Book Cover')" />
+                    <img class="shadow mt-1 w-full lg:w-4/12 mx-auto" src="{{ asset('img/choose-img.jpg') }}"
+                        alt="Book Cover Name">
                 </div>
 
                 <div class="col-span-12">
@@ -161,12 +167,25 @@
     {{-- START SCRIPTS --}}
     @push('scripts')
     <script>
+        let selectedBooks = [];
+        const selectAllBtn = $('#books-table #select-all');
+        const exportBtn = $('#export_book');
+
         $(document).ready(function() {
+
             var table = $('#books-table').DataTable({
-                processing: true,
                 serverSide: true,
                 ajax: "{{ route('books.index') }}",
                 columns: [
+                    { 
+                        data: null, 
+                        name: 'select', 
+                        orderable: false, 
+                        searchable: false,
+                        render: function(data, type, full, meta) {
+                            return `<x-text-input id="book_id_edit-${data.id}" class="book_checkbox" type="checkbox" :value="'${data.id}'"/>`
+                        }
+                    },
                     { data: 'book_name', name: 'book_name' },
                     { data: 'book_author', name: 'book_author' },
                     {
@@ -190,7 +209,18 @@
                             </div>` 
                         }
                      },
+                     
                 ],
+                select: {
+                    style: 'multi',
+                    selector: 'td:first-child input[type="checkbox"]'
+                }
+            });
+
+            $('#books-table').on('page.dt', function () {
+                // Reset selectedBooks & Select All State During Pagination
+                selectAllBtn.prop('checked',false);
+                selectedBooks = [];
             });
         });
 
@@ -202,25 +232,44 @@
                     flashMessage.style.opacity = '0';
                 }
             }, 2000); // 2000 milliseconds (2 seconds) is the duration of the fade-out effect
+
+            selectAllBtn.on('click', function(e) {
+                const checkBoxes = document.querySelectorAll('.book_checkbox');
+                
+                if(e.target.checked == true) {
+                    checkBoxes.forEach(el => {
+                        selectedBooks.push(el.value);
+                        el.checked = true;
+                    });
+                    exportBtn.attr('disabled', false);
+
+                } else if (e.target.checked == false) {
+                    checkBoxes.forEach(el => {
+                        el.checked = false;
+                    });
+                
+                    selectedBooks = [];
+                    exportBtn.attr('disabled', true);
+                }
+            });
         });
 
         function editBook(id = null) {
             $.ajax({
                 url: `/books/${id}/edit`,
                 type: 'GET',
-                success: function ({id, book_name, book_author, book_cover_photo_path}) {
+                success: function (data) {
                     // Handle success response here
-                    
                     // RESET FORM
                     $('#book_form_edit')[0].reset();
 
                     // ASSIGN DATA TO FORM INPUTS
-                    $("#book_form_edit").attr("action", `{{ url('books') }}/${id}`);
+                    $("#book_form_edit").attr("action", `{{ url('books') }}/${data.id}`);
 
-                    $('#book_id_edit').val(id);
-                    $('#book_name_edit').val(book_name);
-                    $('#book_author_edit').val(book_author);
-                    $('#current_book_cover_photo_edit').attr('src', `{{ asset('storage') }}/${book_cover_photo_path}`);
+                    $('#book_id_edit').val(data.id);
+                    $('#book_name_edit').val(data.book_name);
+                    $('#book_author_edit').val(data.book_author);
+                    $('#current_book_cover_photo_edit').attr('src', `{{ asset('storage') }}/${data.book_cover_photo_path}`);
                 },
                 error: function (error) {
                     // Handle error response here
@@ -231,6 +280,27 @@
 
         function deleteBook(id = null) {
             $("#book_form_delete").attr("action", `{{ url('books') }}/${id}`);
+        }
+
+        function exportBooks() {
+            $.ajax({
+                url: `{{ route('books.export') }}`,
+                type: 'post',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: {
+                    selectedBooks: selectedBooks,
+                },
+                success: function (data) {
+                    // Handle success response here
+                    console.log('success:'+data);
+                },
+                error: function (xhr, status, error) {
+                    // Handle error response here
+                    console.log('error:'+error);
+                }
+            });
         }
     </script>
     @endpush
